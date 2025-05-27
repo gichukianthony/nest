@@ -1,0 +1,33 @@
+@URL = http://localhost:3000
+
+### get all users
+GET {{URL}}/users
+# search a user
+###
+GET {{URL}}/users/search?q=John
+
+### get a user by id
+GET {{URL}}/users/3
+### create a user
+
+POST {{URL}}/users
+Content-Type: application/json
+
+{
+      "name": "Jane Smith",
+      "email": "jane@example.com",
+      "password": "secret",
+      "createdAt": "2023-10-01T12:00:00Z",
+      "updatedAt": "2023-10-01T12:00:00Z",
+      "role": "admin"
+    }
+
+### update a user
+PATCH  {{URL}}/users/1
+Content-Type: application/json
+
+{
+      "name": "Jane Doe"
+}
+### delete a user
+DELETE {{URL}}/users/1
