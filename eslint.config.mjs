@@ -13,14 +13,15 @@ export default tseslint.config(
   eslintPluginPrettierRecommended,
   {
     languageOptions: {
+      parser: tseslint.parser,
+      parserOptions: {
+        project: './tsconfig.json', // ✅ Required for type-aware linting
+        tsconfigRootDir: import.meta.dirname,
+        sourceType: 'module', // ✅ Recommended for NestJS + TypeScript
+      },
       globals: {
         ...globals.node,
         ...globals.jest,
-      },
-      sourceType: 'commonjs',
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: import.meta.dirname,
       },
     },
   },
@@ -28,7 +29,8 @@ export default tseslint.config(
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
-      '@typescript-eslint/no-unsafe-argument': 'warn'
+      '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unsafe-call': 'warn', // ✅ Include this to control the warning
     },
   },
 );
