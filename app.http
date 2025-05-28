@@ -31,3 +31,45 @@ Content-Type: application/json
 }
 ### delete a user
 DELETE {{URL}}/users/1
+
+### mechanics
+### get all mechanics
+GET {{URL}}/mechanics
+
+### update a mechanic
+PATCH {{URL}}/mechanics/1
+Content-Type: application/json
+
+{
+      "name": "Updated Mechanic Name"
+}
+### delete a mechanic
+DELETE {{URL}}/mechanics/1
+### create a mechanic
+POST {{URL}}/mechanics
+Content-Type: application/json
+
+{
+      "name": "New Mechanic",
+      "email": "newmechanic@example.com",
+      "specialization": "Engine Repair",
+      "phone": 1234567890,
+      "location": "123 Main St, Springfield",
+      "experience": 5
+}
+### get a mechanic by id
+GET {{URL}}/mechanics/2     
+
+get all feedbacks
+GET {{URL}}/feedbacks
+### create feedback
+POST {{URL}}/feedbacks
+Content-Type: application/json
+
+{
+      "user_id": 1,
+      "comment": "Excellent service!",
+      "rating": 5,
+      "mechanic_id": 1,
+      "feedback_id": 1
+}
