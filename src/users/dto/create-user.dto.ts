@@ -5,13 +5,13 @@ export class CreateUserDto {
   @IsOptional()
   id?: number;
   @IsString()
-  name: string;
+  name!: string;
 
   @IsEmail()
-  email: string;
+  email!: string;
 
   @IsString()
-  password: string;
+  password!: string;
 
   createdAt?: Date;
 
