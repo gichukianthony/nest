@@ -1,98 +1,142 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Mechanic } from './entities/mechanic.entity';
 import { CreateMechanicDto } from './dto/create-mechanic.dto';
 import { UpdateMechanicDto } from './dto/update-mechanic.dto';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class MechanicsService {
-  private mechanics: CreateMechanicDto[] = [
-    {
-      mechanic_id: 1,
-      name: 'John Doe',
-      email: 'john.doe@example.com',
-      phone: 1234567890,
-      location: 'New York',
-      approved: 'active',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-    {
-      mechanic_id: 2,
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      phone: 9876543210,
-      location: 'Los Angeles',
-      approved: 'inactive',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    },
-  ];
-  // Create a new mechanic
-  create(mechanic: CreateMechanicDto): CreateMechanicDto {
-    const lastId: number | undefined =
-      this.mechanics.length > 0
-        ? this.mechanics[this.mechanics.length - 1].mechanic_id
-        : 0;
-    const newMechanic: CreateMechanicDto = {
-      mechanic_id: (lastId ?? 0) + 1,
-      name: mechanic.name,
-      email: mechanic.email,
-      phone: mechanic.phone,
-      location: mechanic.location,
-      approved: mechanic.approved || 'inactive',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    this.mechanics.push(newMechanic);
-    return newMechanic;
+  constructor(
+    @InjectRepository(Mechanic)
+    private mechanicRepository: Repository<Mechanic>,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+  ) {}
+
+  async create(createMechanicDto: CreateMechanicDto): Promise<Mechanic> {
+    const mechanic = new Mechanic();
+    mechanic.name = createMechanicDto.name;
+
+    if (createMechanicDto.email) {
+      mechanic.email = createMechanicDto.email;
+    }
+    if (createMechanicDto.phone) {
+      mechanic.phone = createMechanicDto.phone;
+    }
+    if (createMechanicDto.location) {
+      mechanic.location = createMechanicDto.location;
+    }
+    mechanic.approved = createMechanicDto.approved || 'inactive';
+
+    if (createMechanicDto.user) {
+      const user = await this.userRepository.findOne({
+        where: { id: createMechanicDto.user },
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `User with ID ${createMechanicDto.user} not found`,
+        );
+      }
+      mechanic.user = user;
+    }
+
+    return this.mechanicRepository.save(mechanic);
   }
-  // Find all mechanics
-  findAll(): CreateMechanicDto[] {
-    return this.mechanics;
+
+  async findAll(user_id?: number): Promise<Mechanic[]> {
+    const queryBuilder = this.mechanicRepository
+      .createQueryBuilder('mechanic')
+      .leftJoinAndSelect('mechanic.user', 'user')
+      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
+      .leftJoinAndSelect('feedbacks.user', 'feedbackUser')
+      .leftJoinAndSelect('mechanic.services', 'services')
+      .leftJoinAndSelect('services.category', 'serviceCategory');
+
+    if (user_id) {
+      queryBuilder.where('user.id = :userId', { userId: user_id });
+    }
+
+    return queryBuilder.getMany();
   }
-  // Find a mechanic by ID
-  findOne(mechanic_id: number): CreateMechanicDto {
-    const mechanic = this.mechanics.find((m) => m.mechanic_id === mechanic_id);
+
+  async findOne(id: number): Promise<Mechanic> {
+    const mechanic = await this.mechanicRepository
+      .createQueryBuilder('mechanic')
+      .leftJoinAndSelect('mechanic.user', 'user')
+      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
+      .leftJoinAndSelect('feedbacks.user', 'feedbackUser')
+      .leftJoinAndSelect('mechanic.services', 'services')
+      .leftJoinAndSelect('services.category', 'serviceCategory')
+      .where('mechanic.id = :id', { id })
+      .getOne();
+
     if (!mechanic) {
-      throw new NotFoundException(`Mechanic with ID ${mechanic_id} not found`);
+      throw new NotFoundException(`Mechanic with ID ${id} not found`);
     }
     return mechanic;
   }
-  // Update a mechanic
-  update(
-    mechanic_id: number,
+
+  async update(
+    id: number,
     updateMechanicDto: UpdateMechanicDto,
-  ): CreateMechanicDto {
-    const mechanicIndex = this.mechanics.findIndex(
-      (m) => m.mechanic_id === mechanic_id,
-    );
-    if (mechanicIndex === -1) {
-      throw new NotFoundException(`Mechanic with ID ${mechanic_id} not found`);
+  ): Promise<Mechanic> {
+    const mechanic = await this.mechanicRepository
+      .createQueryBuilder('mechanic')
+      .leftJoinAndSelect('mechanic.user', 'user')
+      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
+      .leftJoinAndSelect('mechanic.services', 'services')
+      .where('mechanic.id = :id', { id })
+      .getOne();
+
+    if (!mechanic) {
+      throw new NotFoundException(`Mechanic with ID ${id} not found`);
     }
-    const updatedMechanic: CreateMechanicDto = {
-      ...this.mechanics[mechanicIndex],
-      ...updateMechanicDto,
-      updatedAt: new Date(),
-    };
-    this.mechanics[mechanicIndex] = updatedMechanic;
-    return updatedMechanic;
-  }
-  // Remove a mechanic
-  remove(mechanic_id: number): string {
-    const mechanicIndex = this.mechanics.findIndex(
-      (m) => m.mechanic_id === mechanic_id,
-    );
-    if (mechanicIndex === -1) {
-      throw new NotFoundException(`Mechanic with ID ${mechanic_id} not found`);
+
+    if (updateMechanicDto.user) {
+      const user = await this.userRepository.findOne({
+        where: { id: updateMechanicDto.user },
+      });
+      if (!user) {
+        throw new NotFoundException(
+          `User with ID ${updateMechanicDto.user} not found`,
+        );
+      }
+      mechanic.user = user;
     }
-    this.mechanics.splice(mechanicIndex, 1);
-    return `Mechanic with ID ${mechanic_id} removed successfully`;
+
+    if (updateMechanicDto.name) mechanic.name = updateMechanicDto.name;
+    if (updateMechanicDto.email) mechanic.email = updateMechanicDto.email;
+    if (updateMechanicDto.phone) mechanic.phone = updateMechanicDto.phone;
+    if (updateMechanicDto.location)
+      mechanic.location = updateMechanicDto.location;
+    if (updateMechanicDto.approved)
+      mechanic.approved = updateMechanicDto.approved;
+
+    return this.mechanicRepository.save(mechanic);
   }
-  // Search mechanics by name or email
-  searchMechanics(query: string): CreateMechanicDto[] {
-    return this.mechanics.filter(
-      (mechanic) =>
-        mechanic.name.toLowerCase().includes(query.toLowerCase()) ||
-        mechanic.email.toLowerCase().includes(query.toLowerCase()),
-    );
+
+  async remove(id: number): Promise<string> {
+    const mechanic = await this.mechanicRepository.findOneBy({ id });
+    if (!mechanic) {
+      throw new NotFoundException(`Mechanic with ID ${id} not found`);
+    }
+    await this.mechanicRepository.remove(mechanic);
+    return `Mechanic with ID ${id} removed successfully`;
+  }
+
+  async searchMechanics(query: string): Promise<Mechanic[]> {
+    return this.mechanicRepository
+      .createQueryBuilder('mechanic')
+      .where('LOWER(mechanic.name) LIKE :query', {
+        query: `%${query.toLowerCase()}%`,
+      })
+      .leftJoinAndSelect('mechanic.user', 'user')
+      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
+      .leftJoinAndSelect('feedbacks.user', 'feedbackUser')
+      .leftJoinAndSelect('mechanic.services', 'services')
+      .leftJoinAndSelect('services.category', 'serviceCategory')
+      .getMany();
   }
 }

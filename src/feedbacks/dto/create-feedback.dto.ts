@@ -1,17 +1,26 @@
-import { IsNumber, IsString } from 'class-validator';
+import {
+  IsString,
+  IsInt,
+  IsNumber,
+  Min,
+  Max,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateFeedbackDto {
-  @IsNumber()
-  feedback_id!: number;
-  @IsNumber()
-  user_id!: number;
   @IsString()
-  comment!: string;
-  @IsNumber()
-  rating!: number;
+  comment: string;
 
-  createdAt!: Date;
-  updatedAt!: Date;
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  rating: number;
+
   @IsNumber()
-  mechanic_id!: number;
+  @IsOptional()
+  user?: number;
+
+  @IsNumber()
+  @IsOptional()
+  mechanic?: number;
 }

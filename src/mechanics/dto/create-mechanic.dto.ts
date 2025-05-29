@@ -1,19 +1,32 @@
-import { IsOptional, IsString, IsEmail, IsEnum, IsInt } from 'class-validator';
+import {
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsEnum,
+  IsNumber,
+} from 'class-validator';
 
 export class CreateMechanicDto {
-  @IsOptional()
-  mechanic_id?: number;
   @IsString()
-  name!: string;
+  name: string;
+
   @IsEmail()
-  email!: string;
-  @IsInt()
-  phone!: number;
-  @IsString()
-  location!: string;
   @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+
+  @IsString()
+  @IsOptional()
+  location?: string;
+
   @IsEnum(['active', 'inactive'])
-  approved?: 'active' | 'inactive' = 'inactive';
-  createdAt?: Date;
-  updatedAt?: Date;
+  @IsOptional()
+  approved?: 'active' | 'inactive';
+
+  @IsNumber()
+  @IsOptional()
+  user?: number;
 }

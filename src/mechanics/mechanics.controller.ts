@@ -6,8 +6,9 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
   ParseIntPipe,
-  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { MechanicsService } from './mechanics.service';
 import { CreateMechanicDto } from './dto/create-mechanic.dto';
@@ -18,41 +19,39 @@ export class MechanicsController {
   constructor(private readonly mechanicsService: MechanicsService) {}
 
   @Post()
-  create(@Body() createMechanicDto: CreateMechanicDto) {
-    return this.mechanicsService.create(createMechanicDto);
+  async create(@Body() createMechanicDto: CreateMechanicDto) {
+    return await this.mechanicsService.create(createMechanicDto);
   }
 
   @Get()
-  findAll() {
-    return this.mechanicsService.findAll();
+  async findAll(@Query('user_id') user_id?: number) {
+    return await this.mechanicsService.findAll(user_id);
   }
-  @Get('search')
-  searchMechanic(@Param('query') query: string): CreateMechanicDto[] {
+
+  @Get('search/:query')
+  async search(@Param('query') query: string) {
     if (!query) {
-      throw new NotFoundException('Query parameter is required');
+      throw new BadRequestException('Search query is required');
     }
-    return this.mechanicsService.searchMechanics(query.toLowerCase());
+    return await this.mechanicsService.searchMechanics(query);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): CreateMechanicDto | string {
-    return this.mechanicsService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.mechanicsService.findOne(id);
   }
 
   @Patch(':id')
-  update(
-    @Param('id') id: string,
+  async update(
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateMechanicDto: UpdateMechanicDto,
   ) {
-    return this.mechanicsService.update(+id, updateMechanicDto);
+    return await this.mechanicsService.update(id, updateMechanicDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    const mechanic = this.mechanicsService.findOne(id);
-    if (!mechanic) {
-      throw new NotFoundException(`Mechanic with ID ${id} not found`);
-    }
-    return this.mechanicsService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.mechanicsService.remove(id);
+    return { message: `Mechanic with ID ${id} removed successfully` };
   }
 }
