@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  NotFoundException,
 } from '@nestjs/common';
 import { FeedbacksService } from './feedbacks.service';
 import { CreateFeedbackDto } from './dto/create-feedback.dto';
@@ -28,7 +27,7 @@ export class FeedbacksController {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): CreateFeedbackDto | string {
+  findOne(@Param('id', ParseIntPipe) id: number) {
     return this.feedbacksService.findOne(id);
   }
 
@@ -42,10 +41,6 @@ export class FeedbacksController {
 
   @Delete(':id')
   remove(@Param('id', ParseIntPipe) id: number) {
-    const feedback = this.feedbacksService.findOne(id);
-    if (!feedback) {
-      throw new NotFoundException(`Feedback with ID ${id} not found`);
-    }
     return this.feedbacksService.remove(id);
   }
 }
