@@ -1,10 +1,10 @@
-@URL = http://localhost:3000
+@URL = http://localhost:3000/api
 
 ### get all users
 GET {{URL}}/users
 # search a user
 ###
-GET {{URL}}/users/search?q=John
+GET {{URL}}/users/search=jane
 
 ### get a user by id
 GET {{URL}}/users/3
@@ -14,11 +14,9 @@ POST {{URL}}/users
 Content-Type: application/json
 
 {
-      "name": "Jane Smith",
-      "email": "jane@example.com",
+      "name": "Janewq Smith",
+      "email": "jaane@exaample.com",
       "password": "secret",
-      "createdAt": "2023-10-01T12:00:00Z",
-      "updatedAt": "2023-10-01T12:00:00Z",
       "role": "admin"
     }
 
@@ -37,7 +35,7 @@ DELETE {{URL}}/users/1
 GET {{URL}}/mechanics
 
 ### update a mechanic
-PATCH {{URL}}/mechanics/1
+PATCH {{URL}}/mechanics/2
 Content-Type: application/json
 
 {
@@ -51,25 +49,34 @@ Content-Type: application/json
 
 {
       "name": "New Mechanic",
-      "email": "newmechanic@example.com",
-      "specialization": "Engine Repair",
+      "email": "newhmechaaanic@example.com",
       "phone": 1234567890,
-      "location": "123 Main St, Springfield",
-      "experience": 5
+      "location": "123 Main St, Springfield"
 }
 ### get a mechanic by id
-GET {{URL}}/mechanics/2     
-
-get all feedbacks
+GET {{URL}}/mechanics/3  
+###
 GET {{URL}}/feedbacks
 ### create feedback
 POST {{URL}}/feedbacks
 Content-Type: application/json
 
 {
-      "user_id": 1,
+      "user": 6,
       "comment": "Excellent service!",
-      "rating": 5,
-      "mechanic_id": 1,
-      "feedback_id": 1
+      "rating": 5
+} 
+###GET SERVICES
+GET {{URL}}/services
+### create a service
+POST {{URL}}/services/
+Content-Type: application/json
+
+{
+  "name": "Oil Change",
+  "description": "Full synthetic oil change service",
+  "price": 49.99,
+  "duration": 60,
+  "categoryId": 1,
+  "mechanicIds": [1, 2]
 }
