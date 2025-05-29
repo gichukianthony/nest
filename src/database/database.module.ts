@@ -13,7 +13,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         port: configService.getOrThrow<number>('PG_PORT'),
         username: configService.getOrThrow<string>('PG_USERNAME'),
         password: configService.getOrThrow<string>('PG_PASSWORD'),
-        database: configService.getOrThrow<string>('PG_NAME'),
+        database: configService.getOrThrow<string>('PG_DATABASE'),
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         synchronize: configService.getOrThrow<boolean>('PG_SYNC', true),
         logging: configService.getOrThrow<boolean>('PG_LOGGING', false),
