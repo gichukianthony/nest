@@ -3,20 +3,32 @@ import { UsersModule } from './users/users.module';
 import { LoggerMiddleware } from './loger.middleware';
 import { MechanicsModule } from './mechanics/mechanics.module';
 import { FeedbacksModule } from './feedbacks/feedbacks.module';
+import { ServicesModule } from './services/services.module';
 import { ConfigModule } from '@nestjs/config';
+import { DatabaseModule } from './database/database.module';
+import { LogsModule } from './logs/logs.module';
+import { RateLimiterModule } from './rate-limiter/rate-limiter.module';
+import { RateLimiterMiddleware } from './rate-limiter/rate-limiter.middleware';
+
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    DatabaseModule,
     UsersModule,
     MechanicsModule,
     FeedbacksModule,
-    ConfigModule.forRoot({
-      isGlobal: true, // Make the module global
-      envFilePath: '.env', // Path to the environment file
-    }),
+    ServicesModule,
+    LogsModule,
+    RateLimiterModule,
   ],
 })
 export class AppModule implements NestModule {
-  configure(consume: MiddlewareConsumer) {
-    consume.apply(LoggerMiddleware).forRoutes('*'); // Apply the logger middleware to all routes
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware, RateLimiterMiddleware)
+      .forRoutes('*');
   }
 }
