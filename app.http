@@ -1,4 +1,4 @@
-@URL = http://localhost:3000/api
+@URL = http://localhost:8000/api
 
 ### get all users
 GET {{URL}}/users
