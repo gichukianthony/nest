@@ -32,6 +32,8 @@ export class User {
 
   @Column({ type: 'varchar', length: 200, nullable: true })
   address: string;
+  @Column({ type: 'text', nullable: true, default: null })
+  hashedRefreshToken: string | null;
 
   @CreateDateColumn()
   createdAt: Date;

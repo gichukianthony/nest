@@ -1,4 +1,6 @@
-@URL = http://localhost:8000/api
+@URL = http://localhost:8000
+###
+
 
 ### get all users
 GET {{URL}}/users
@@ -8,14 +10,23 @@ GET {{URL}}/users/search=jane
 
 ### get a user by id
 GET {{URL}}/users/3
-### create a user
 
+
+### LOGIN a new user
+POST {{URL}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "john@example.com",
+  "password": "password"
+}
+### create a user
 POST {{URL}}/users
 Content-Type: application/json
 
 {
       "name": "Janewq Smith",
-      "email": "jaane@exaample.com",
+      "email": "jfaaneh@exaample.com",
       "password": "secret",
       "role": "admin"
     }

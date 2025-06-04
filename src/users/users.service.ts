@@ -4,6 +4,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import * as Bcrypt from 'bcrypt';
 
 @Injectable()
 export class UsersService {
@@ -11,10 +12,42 @@ export class UsersService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
+  private async hashData(data: string): Promise<string> {
+    const salt = await Bcrypt.genSalt(10);
+    return await Bcrypt.hash(data, salt);
+  }
+  private excludePassword(user: User): Partial<User> {
+    const { password, hashedRefreshToken, ...rest } = user;
+    return rest;
+  }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
-    const user = this.userRepository.create(createUserDto);
-    return await this.userRepository.save(user);
+  async create(createUserDto: CreateUserDto): Promise<Partial<User>> {
+    const existingUser = await this.userRepository.findOne({
+      where: { email: createUserDto.email },
+      select: ['id'],
+    });
+
+    if (existingUser) {
+      throw new NotFoundException(
+        `User with email ${createUserDto.email} already exists`,
+      );
+    }
+    const newUser: Partial<User> = {
+      name: createUserDto.name,
+      email: createUserDto.email,
+      password: await this.hashData(createUserDto.password),
+      role: createUserDto.role,
+    };
+    const savedUser = await this.userRepository
+      .save(newUser)
+      .then((user) => {
+        return user;
+      })
+      .catch((error) => {
+        console.error('Error creating user:', error);
+        throw new Error('Failed to create user');
+      });
+    return this.excludePassword(savedUser);
   }
 
   async findAll(): Promise<User[]> {

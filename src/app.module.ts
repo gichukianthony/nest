@@ -12,6 +12,7 @@ import { RateLimiterMiddleware } from './rate-limiter/rate-limiter.middleware';
 import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory, Keyv } from 'cacheable';
 import { createKeyv } from '@keyv/redis';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { createKeyv } from '@keyv/redis';
         ],
       }),
     }),
+    AuthModule,
   ],
   controllers: [],
   providers: [

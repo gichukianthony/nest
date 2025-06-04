@@ -29,8 +29,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  // Set global prefix
-  app.setGlobalPrefix('api');
   const { httpAdapter } = app.get(HttpAdapterHost);
   // Register the global exception filter
   app.useGlobalFilters(new AllExceptionsFilter(httpAdapter));
