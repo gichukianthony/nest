@@ -13,23 +13,26 @@ import {
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-// import { Role } from './enums/role.enum';
+import { Public } from '../auth/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
+  @Public()
   async create(@Body() createUserDto: CreateUserDto): Promise<any> {
     return await this.usersService.create(createUserDto);
   }
 
   @Get()
+  @Public()
   async findAll(): Promise<any[]> {
     return await this.usersService.findAll();
   }
 
   @Get('search')
+  @Public()
   async search(@Query('query') query: string): Promise<any[]> {
     if (!query) {
       throw new BadRequestException('Query parameter is required');
@@ -38,19 +41,20 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<any> {
-    return await this.usersService.findOne(id);
+  @Public()
+  async findOne(@Param('id') id: string): Promise<any> {
+    return await this.usersService.findOne(+id);
   }
 
   @Delete(':id')
-  async remove(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<{ message: string }> {
-    await this.usersService.remove(id);
+  @Public()
+  async remove(@Param('id') id: string): Promise<{ message: string }> {
+    await this.usersService.remove(+id);
     return { message: `User with ID ${id} removed successfully` };
   }
 
   @Patch(':id')
+  @Public()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
