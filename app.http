@@ -3,23 +3,15 @@
 
 
 ### get all users
-GET {{URL}}/users
+GET {{URL}}/users/
 # search a user
 ###
-GET {{URL}}/users/search=jane
+GET {{URL}}/users/search?query=jan
 
 ### get a user by id
-GET {{URL}}/users/3
+GET {{URL}}/users/16
 
 
-### LOGIN a new user
-POST {{URL}}/auth/signin
-Content-Type: application/json
-
-{
-  "email": "john@example.com",
-  "password": "password"
-}
 ### create a user
 POST {{URL}}/users
 Content-Type: application/json
@@ -32,14 +24,14 @@ Content-Type: application/json
     }
 
 ### update a user
-PATCH  {{URL}}/users/1
+PATCH  {{URL}}/users/16
 Content-Type: application/json
 
 {
       "name": "Jane Doe"
 }
 ### delete a user
-DELETE {{URL}}/users/1
+DELETE {{URL}}/users/16
 
 ### mechanics
 ### get all mechanics
@@ -90,4 +82,21 @@ Content-Type: application/json
   "duration": 60,
   "categoryId": 1,
   "mechanicIds": [1, 2]
+}
+
+
+### LOGIN a new user
+POST {{URL}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "jfaaneh@exaample.com",
+  "password": "secret"
+}
+### logout a user
+GET  {{URL}}/auth/signout/17
+Content-Type: application/json
+
+{
+  "email": "jfaaneh@exaample.com"
 }
