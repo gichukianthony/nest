@@ -18,8 +18,9 @@ export class RateLimiterMiddleware implements NestMiddleware {
   constructor(private readonly rateLimiterService: RateLimiterService) {}
 
   use(req: Request, res: Response, next: NextFunction) {
-    const ip: string = req.ip || req.connection.remoteAddress || 'unknown';
-
+    //getting client ip
+    const ip: string = req.ip || req.socket?.remoteAddress || 'unknown';
+    //check if the ip is blocked
     if (this.rateLimiterService.isBlocked(ip)) {
       const blockExpiry: number | null =
         this.rateLimiterService.getBlockExpiry(ip);
@@ -35,19 +36,19 @@ export class RateLimiterMiddleware implements NestMiddleware {
 
       throw new HttpException(errorResponse, HttpStatus.TOO_MANY_REQUESTS);
     }
-
+    //update the ip request info
     const { blocked, remaining } = this.rateLimiterService.increment(ip);
-
+    //   if blocked after increments
     if (blocked) {
       const errorResponse: RateLimitErrorResponse = {
         statusCode: HttpStatus.TOO_MANY_REQUESTS,
-        message: 'Too many requests. IP has been blocked for 1 hour.',
+        message: 'Too many requests. IP has been blocked for 5 minutes.',
         error: 'Too Many Requests',
       };
 
       throw new HttpException(errorResponse, HttpStatus.TOO_MANY_REQUESTS);
     }
-
+    // setting header for client
     res.setHeader('X-RateLimit-Limit', '5');
     res.setHeader('X-RateLimit-Remaining', remaining.toString());
     next();
