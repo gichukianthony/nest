@@ -10,6 +10,12 @@ import {
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 import { Mechanic } from 'src/mechanics/entities/mechanic.entity';
 
+export enum Role {
+  USER = 'user',
+  ADMIN = 'admin',
+  MECHANIC = 'mechanic',
+  SUPER_ADMIN = 'super_admin',
+}
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
@@ -24,8 +30,8 @@ export class User {
   @Column({ type: 'varchar', length: 100 })
   password: string;
 
-  @Column({ type: 'enum', enum: ['user', 'admin'], default: 'user' })
-  role: 'user' | 'admin';
+  @Column({ type: 'enum', enum: Role, default: Role.USER })
+  role: Role;
 
   @Column({ type: 'varchar', length: 20, nullable: true })
   phone: string;
