@@ -9,13 +9,19 @@ import {
   ParseIntPipe,
   Patch,
   BadRequestException,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Public } from '../auth/decorators/public.decorator';
+import { AtGuard } from 'src/auth/guards/at.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Role } from './entities/user.entity';
 
 @Controller('users')
+@UseGuards(AtGuard, RolesGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
@@ -24,15 +30,13 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto): Promise<any> {
     return await this.usersService.create(createUserDto);
   }
-
+  @Roles(Role.ADMIN, Role.SUPER_ADMIN)
   @Get()
-  @Public()
   async findAll(): Promise<any[]> {
     return await this.usersService.findAll();
   }
 
   @Get('search')
-  @Public()
   async search(@Query('query') query: string): Promise<any[]> {
     if (!query) {
       throw new BadRequestException('Query parameter is required');
@@ -41,20 +45,17 @@ export class UsersController {
   }
 
   @Get(':id')
-  @Public()
   async findOne(@Param('id') id: string): Promise<any> {
     return await this.usersService.findOne(+id);
   }
 
   @Delete(':id')
-  @Public()
   async remove(@Param('id') id: string): Promise<{ message: string }> {
     await this.usersService.remove(+id);
     return { message: `User with ID ${id} removed successfully` };
   }
 
   @Patch(':id')
-  @Public()
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
