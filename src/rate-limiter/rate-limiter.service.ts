@@ -19,9 +19,9 @@ export class RateLimiterService {
   // Stores request info per IP address
   private readonly ipRequests: Map<string, RateLimitInfo> = new Map();
 
-  private readonly MAX_REQUESTS: number = 2;
+  private readonly MAX_REQUESTS: number = 2000;
 
-  private readonly WINDOW_MS: number = 600000; // (10 minutes)
+  private readonly WINDOW_MS: number = 6000000; // (10 minutes)
 
   private readonly BLOCK_DURATION_MS: number = 300000; // (5 minutes)
 
