@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateAuthDto } from './dto/create-auth.dto';
+import { Public } from './decorators/public.decorator';
 
 export interface RequestWithUser extends Request {
   user: {
@@ -22,7 +23,7 @@ export interface RequestWithUser extends Request {
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
+  @Public()
   @Post('signin')
   signIn(@Body() createAuthDto: CreateAuthDto) {
     return this.authService.signIn(createAuthDto);
@@ -32,7 +33,7 @@ export class AuthController {
   signOut(@Param('id', ParseIntPipe) id: string) {
     return this.authService.signOut(id);
   }
-
+  @Public()
   @Get('refresh')
   refreshTokens(
     @Query('id', ParseIntPipe) id: number,
