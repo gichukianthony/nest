@@ -3,7 +3,7 @@
 
 
 ### get all users
-GET {{URL}}/users/
+GET {{URL}}/users
 # search a user
 ###
 GET {{URL}}/users/search?query=jan
@@ -15,7 +15,6 @@ GET {{URL}}/users/16
 ### create a user
 POST {{URL}}/users
 Content-Type: application/json
-
 {
       "name": "Janewq Smith",
       "email": "jfaaneh@exaample.com",
@@ -100,3 +99,16 @@ Content-Type: application/json
 {
   "email": "jfaaneh@exaample.com"
 }
+
+###
+@AccessToken  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6ImpmYWFuZWhAZXhhYW1wbGUuY29tIiwiaWF0IjoxNzQ5NDY5MTE4LCJleHAiOjE3NDk0NzAwMTh9.jP4gtPuS_d5K1Rib2j8TyEQcDQyKmrbwfe3vWCG4md8
+@RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6ImpmYWFuZWhAZXhhYW1wbGUuY29tIiwiaWF0IjoxNzQ5NDcwNzczLCJleHAiOjE3NTAwNzU1NzN9.PqAavMHZgDx5QPauqMXaapAUdxrao6o_ZAo4UvuHeZw
+###get all users
+GET {{URL}}/users
+Authorization: Bearer {{AccessToken}}
+
+### refresh token
+GET {{URL}}/auth/refresh?id=17
+Authorization: Bearer {{RefreshToken}}
+
+
