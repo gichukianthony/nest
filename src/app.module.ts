@@ -13,6 +13,9 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { CacheableMemory, Keyv } from 'cacheable';
 import { createKeyv } from '@keyv/redis';
 import { AuthModule } from './auth/auth.module';
+import { APP_GUARD } from '@nestjs/core';
+import { AtGuard } from './auth/guards/at.guard';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -45,12 +48,17 @@ import { AuthModule } from './auth/auth.module';
       }),
     }),
     AuthModule,
+    CaslModule,
   ],
   controllers: [],
   providers: [
     {
       provide: 'APP_INTERCEPTOR',
       useClass: CacheInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AtGuard,
     },
   ],
 })
