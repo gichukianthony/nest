@@ -16,6 +16,7 @@ import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { AtGuard } from './auth/guards/at.guard';
 import { CaslModule } from './casl/casl.module';
+import { MailModule } from './mails/mail.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { CaslModule } from './casl/casl.module';
     }),
     AuthModule,
     CaslModule,
+    MailModule,
   ],
   controllers: [],
   providers: [
