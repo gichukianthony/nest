@@ -8,6 +8,7 @@ import {
   ManyToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { Feedback } from 'src/feedbacks/entities/feedback.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -43,7 +44,11 @@ export class Mechanic {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.mechanics, { nullable: true })
+  @ManyToOne(() => User, (user) => user.mechanics, {
+    nullable: true,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' }) // This makes sure userId is the foreign key column
   user: Relation<User>;
 
   @OneToMany(() => Feedback, (feedback) => feedback.mechanic)
