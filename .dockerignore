@@ -13,7 +13,7 @@ coverage
 *.md
 !package*.json
 !pnpm*.yaml
-applogs
+# applogs
 image
 test
 jest.config.js
