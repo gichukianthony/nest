@@ -15,7 +15,7 @@ import { Mechanic } from 'src/mechanics/entities/mechanic.entity';
 export class FeedbacksService {
   constructor(
     @InjectRepository(Feedback)
-    private feedbackRepository: Repository<Feedback>,
+    private readonly feedbackRepository: Repository<Feedback>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
     @InjectRepository(Mechanic)
@@ -75,17 +75,29 @@ export class FeedbacksService {
     }
   }
 
-  async findAll(user_id?: number): Promise<Feedback[]> {
-    const queryBuilder = this.feedbackRepository
-      .createQueryBuilder('feedback')
-      .leftJoinAndSelect('feedback.user', 'user')
-      .leftJoinAndSelect('feedback.mechanic', 'mechanic');
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: Feedback[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const skip = (page - 1) * limit;
+    const [feedbacks, total] = await this.feedbackRepository.findAndCount({
+      skip,
+      take: limit,
+      relations: ['user', 'mechanic'],
+    });
 
-    if (user_id) {
-      queryBuilder.where('user.id = :userId', { userId: user_id });
-    }
-
-    return queryBuilder.getMany();
+    return {
+      data: feedbacks,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<Feedback> {
@@ -100,53 +112,15 @@ export class FeedbacksService {
   }
 
   async update(id: number, updateDto: UpdateFeedbackDto): Promise<Feedback> {
-    const feedback = await this.feedbackRepository.findOne({
-      where: { id },
-      relations: ['user', 'mechanic'],
-    });
-
-    if (!feedback) {
-      throw new NotFoundException(`Feedback with ID ${id} not found`);
-    }
-
-    // Update basic fields
-    if (updateDto.comment) feedback.comment = updateDto.comment;
-    if (updateDto.rating) feedback.rating = updateDto.rating;
-
-    // Handle user relationship if provided
-    if (updateDto.user) {
-      const user = await this.userRepository.findOne({
-        where: { id: updateDto.user },
-      });
-      if (!user) {
-        throw new NotFoundException(`User with ID ${updateDto.user} not found`);
-      }
-      feedback.user = user;
-    }
-
-    // Handle mechanic relationship if provided
-    if (updateDto.mechanic) {
-      const mechanic = await this.mechanicRepository.findOne({
-        where: { id: updateDto.mechanic },
-      });
-      if (!mechanic) {
-        throw new NotFoundException(
-          `Mechanic with ID ${updateDto.mechanic} not found`,
-        );
-      }
-      feedback.mechanic = mechanic;
-    }
-
+    const feedback = await this.findOne(id);
+    Object.assign(feedback, updateDto);
     return await this.feedbackRepository.save(feedback);
   }
 
-  async remove(id: number): Promise<string> {
-    const feedback = await this.feedbackRepository.findOneBy({ id });
-    if (!feedback) {
-      throw new NotFoundException(`Feedback with ID ${id} not found`);
-    }
+  async remove(id: number): Promise<{ message: string }> {
+    const feedback = await this.findOne(id);
     await this.feedbackRepository.remove(feedback);
-    return `Feedback with ID ${id} removed successfully`;
+    return { message: `Feedback with ID ${id} removed successfully` };
   }
 
   async searchFeedbacks(query: string): Promise<Feedback[]> {
