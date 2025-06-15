@@ -10,7 +10,7 @@ import { User } from 'src/users/entities/user.entity';
 export class MechanicsService {
   constructor(
     @InjectRepository(Mechanic)
-    private mechanicRepository: Repository<Mechanic>,
+    private readonly mechanicRepository: Repository<Mechanic>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
   ) {}
@@ -45,36 +45,41 @@ export class MechanicsService {
     return this.mechanicRepository.save(mechanic);
   }
 
-  async findAll(user_id?: number): Promise<Mechanic[]> {
-    const queryBuilder = this.mechanicRepository
-      .createQueryBuilder('mechanic')
-      .leftJoinAndSelect('mechanic.user', 'user')
-      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
-      .leftJoinAndSelect('feedbacks.user', 'feedbackUser')
-      .leftJoinAndSelect('mechanic.services', 'services')
-      .leftJoinAndSelect('services.category', 'serviceCategory');
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: Mechanic[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const skip = (page - 1) * limit;
+    const [mechanics, total] = await this.mechanicRepository.findAndCount({
+      skip,
+      take: limit,
+      relations: ['user'],
+    });
 
-    if (user_id) {
-      queryBuilder.where('user.id = :userId', { userId: user_id });
-    }
-
-    return queryBuilder.getMany();
+    return {
+      data: mechanics,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<Mechanic> {
-    const mechanic = await this.mechanicRepository
-      .createQueryBuilder('mechanic')
-      .leftJoinAndSelect('mechanic.user', 'user')
-      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
-      .leftJoinAndSelect('feedbacks.user', 'feedbackUser')
-      .leftJoinAndSelect('mechanic.services', 'services')
-      .leftJoinAndSelect('services.category', 'serviceCategory')
-      .where('mechanic.id = :id', { id })
-      .getOne();
+    const mechanic = await this.mechanicRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
 
     if (!mechanic) {
       throw new NotFoundException(`Mechanic with ID ${id} not found`);
     }
+
     return mechanic;
   }
 
@@ -82,48 +87,15 @@ export class MechanicsService {
     id: number,
     updateMechanicDto: UpdateMechanicDto,
   ): Promise<Mechanic> {
-    const mechanic = await this.mechanicRepository
-      .createQueryBuilder('mechanic')
-      .leftJoinAndSelect('mechanic.user', 'user')
-      .leftJoinAndSelect('mechanic.feedbacks', 'feedbacks')
-      .leftJoinAndSelect('mechanic.services', 'services')
-      .where('mechanic.id = :id', { id })
-      .getOne();
-
-    if (!mechanic) {
-      throw new NotFoundException(`Mechanic with ID ${id} not found`);
-    }
-
-    if (updateMechanicDto.user) {
-      const user = await this.userRepository.findOne({
-        where: { id: updateMechanicDto.user },
-      });
-      if (!user) {
-        throw new NotFoundException(
-          `User with ID ${updateMechanicDto.user} not found`,
-        );
-      }
-      mechanic.user = user;
-    }
-
-    if (updateMechanicDto.name) mechanic.name = updateMechanicDto.name;
-    if (updateMechanicDto.email) mechanic.email = updateMechanicDto.email;
-    if (updateMechanicDto.phone) mechanic.phone = updateMechanicDto.phone;
-    if (updateMechanicDto.location)
-      mechanic.location = updateMechanicDto.location;
-    if (updateMechanicDto.approved)
-      mechanic.approved = updateMechanicDto.approved;
-
+    const mechanic = await this.findOne(id);
+    Object.assign(mechanic, updateMechanicDto);
     return this.mechanicRepository.save(mechanic);
   }
 
-  async remove(id: number): Promise<string> {
-    const mechanic = await this.mechanicRepository.findOneBy({ id });
-    if (!mechanic) {
-      throw new NotFoundException(`Mechanic with ID ${id} not found`);
-    }
+  async remove(id: number): Promise<{ message: string }> {
+    const mechanic = await this.findOne(id);
     await this.mechanicRepository.remove(mechanic);
-    return `Mechanic with ID ${id} removed successfully`;
+    return { message: `Mechanic with ID ${id} removed successfully` };
   }
 
   async searchMechanics(query: string): Promise<Mechanic[]> {
