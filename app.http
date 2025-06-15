@@ -9,18 +9,23 @@ GET {{URL}}/users
 GET {{URL}}/users/search?query=jan
 
 ### get a user by id
-GET {{URL}}/users/16
+GET {{URL}}/users
+
 
 
 ### create a user
+
+
 POST {{URL}}/users
 Content-Type: application/json
-{
-      "name": "Janewq Smith",
-      "email": "jfaaneh@exaample.com",
-      "password": "secret",
-      "role": "admin"
-    }
+
+ {
+    "name": "Henry Njoroge",
+    "email": "henry1@example.com",
+    "phone": "0711000008",
+    "password": "password123",
+    "role": "admin"
+  }
 
 ### update a user
 PATCH  {{URL}}/users/16
@@ -66,49 +71,103 @@ Content-Type: application/json
 {
       "user": 6,
       "comment": "Excellent service!",
-      "rating": 5
-} 
+      "rating": 5,
+      "mechanic": 2
+}
 ###GET SERVICES
 GET {{URL}}/services
+Authorization: Bearer {{AccessToken}}
+
 ### create a service
-POST {{URL}}/services/
+POST {{URL}}/services
 Content-Type: application/json
 
 {
   "name": "Oil Change",
   "description": "Full synthetic oil change service",
   "price": 49.99,
-  "duration": 60,
-  "categoryId": 1,
-  "mechanicIds": [1, 2]
+  "duration": 60
 }
 
-
-### LOGIN a new user
+### LOGIN a new user admin
 POST {{URL}}/auth/signin
 Content-Type: application/json
 
 {
-  "email": "jfaaneh@exaample.com",
-  "password": "secret"
+  "email": "henry1@example.com",
+  "password": "password123"
 }
 ### logout a user
 GET  {{URL}}/auth/signout/17
-Content-Type: application/json
-
-{
-  "email": "jfaaneh@exaample.com"
-}
+Authorization: Bearer {{AccessToken}}
 
 ###
-@AccessToken  = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6ImpmYWFuZWhAZXhhYW1wbGUuY29tIiwiaWF0IjoxNzQ5NDY5MTE4LCJleHAiOjE3NDk0NzAwMTh9.jP4gtPuS_d5K1Rib2j8TyEQcDQyKmrbwfe3vWCG4md8
+@AccessToken  =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyLCJlbWFpbCI6ImhlbnJ5MUBleGFtcGxlLmNvbSIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTc0OTgwNjE1MywiZXhwIjoxNzQ5ODA3MDUzfQ.GT3zzBdecR0HBASjXUUv7D6Hjv0XJxAijp0jlq547AE
 @RefreshToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjE3LCJlbWFpbCI6ImpmYWFuZWhAZXhhYW1wbGUuY29tIiwiaWF0IjoxNzQ5NDcwNzczLCJleHAiOjE3NTAwNzU1NzN9.PqAavMHZgDx5QPauqMXaapAUdxrao6o_ZAo4UvuHeZw
 ###get all users
 GET {{URL}}/users
+Authorization: Bearer {{AccessToken}}
+### delete a user
+DELETE {{URL}}/users/19
 Authorization: Bearer {{AccessToken}}
 
 ### refresh token
 GET {{URL}}/auth/refresh?id=17
 Authorization: Bearer {{RefreshToken}}
+### login a user
+POST {{URL}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "antonygatitu37@gmail.com",
+  "password": "123456"
+}
 
 
+### login a mechanic
+POST {{URL}}/auth/signin
+Content-Type: application/json
+
+{
+  "email": "antonygichuki@gmail.com",
+  "password": "123456"
+}
+### admin is the one to get all services
+GET {{URL}}/mechanics
+Authorization: Bearer {{AccessToken}}
+
+### POST A MECHANIC ADMIN
+POST {{URL}}/mechanics
+Authorization: Bearer {{AccessToken}}
+Content-Type: application/json
+
+  {
+    "name": "John Njoroge",
+    "email": "antonygatitu@gmail.com",
+    "phone": "0712345005",
+    "location": "654 Kenyatta Ave, Eldoret"
+  }
+
+### get all feedbacks
+GET {{URL}}/feedbacks
+Authorization: Bearer {{AccessToken}}
+### delete feedback
+DELETE {{URL}}/feedbacks/11
+Authorization: Bearer {{AccessToken}}
+
+###forgot password
+POST {{URL}}/auth/forgot-password
+Content-Type: application/json
+
+{
+  "email": "antonygatitu327@gmail.com"
+}
+
+### reset password
+POST {{URL}}/auth/reset-password
+Content-Type: application/json
+
+{
+  "token": "eaef06aee414ba9b8a6d8abfac67b7758db88195be8e619a6bae7cbe605b4480",
+  "newPassword": "newpassword123" 
+}
