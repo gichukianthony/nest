@@ -6,11 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Feedback } from './entities/feedback.entity';
 import { User } from 'src/users/entities/user.entity';
 import { Mechanic } from 'src/mechanics/entities/mechanic.entity';
+import { CaslModule } from 'src/casl/casl.module';
 
 @Module({
   imports: [
     DatabaseModule,
     TypeOrmModule.forFeature([Feedback, User, Mechanic]),
+    CaslModule,
   ],
   controllers: [FeedbacksController],
   providers: [FeedbacksService],
