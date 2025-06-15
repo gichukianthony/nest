@@ -17,8 +17,6 @@ import { Public } from 'src/auth/decorators/public.decorator';
 import { PoliciesGuard } from 'src/casl/guards/policies.guard';
 import { CheckPolicies } from 'src/casl/decorators/check-policies.decorator';
 import { FeedbackPolicies } from 'src/casl/policies/feedback-policies';
-import { Request } from 'express';
-import { Role } from '../users/entities/user.entity';
 import {
   ApiBearerAuth,
   ApiQuery,
@@ -29,12 +27,6 @@ import {
 } from '@nestjs/swagger';
 import { Feedback } from './entities/feedback.entity';
 
-interface RequestWithUser extends Request {
-  user: {
-    id: number;
-    role: Role;
-  };
-}
 @ApiTags('Feedbacks')
 @ApiBearerAuth('JWT-auth')
 @Controller('feedbacks')
