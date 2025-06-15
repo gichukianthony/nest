@@ -11,7 +11,7 @@ import { UpdateServiceDto } from './dto/update-service.dto';
 export class ServicesService {
   constructor(
     @InjectRepository(Service)
-    private serviceRepository: Repository<Service>,
+    private readonly serviceRepository: Repository<Service>,
     @InjectRepository(ServiceCategory)
     private categoryRepository: Repository<ServiceCategory>,
     @InjectRepository(Mechanic)
@@ -51,10 +51,28 @@ export class ServicesService {
     return this.serviceRepository.save(service);
   }
 
-  async findAll(): Promise<Service[]> {
-    return this.serviceRepository.find({
-      relations: ['category', 'mechanics'],
+  async findAll(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: Service[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const skip = (page - 1) * limit;
+    const [services, total] = await this.serviceRepository.findAndCount({
+      skip,
+      take: limit,
     });
+
+    return {
+      data: services,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async findOne(id: number): Promise<Service> {
@@ -112,6 +130,20 @@ export class ServicesService {
   async remove(id: number): Promise<void> {
     const service = await this.findOne(id);
     await this.serviceRepository.remove(service);
+  }
+
+  async searchServices(query: string): Promise<Service[]> {
+    return this.serviceRepository
+      .createQueryBuilder('service')
+      .where('LOWER(service.name) LIKE :query', {
+        query: `%${query.toLowerCase()}%`,
+      })
+      .orWhere('LOWER(service.description) LIKE :query', {
+        query: `%${query.toLowerCase()}%`,
+      })
+      .leftJoinAndSelect('service.category', 'category')
+      .leftJoinAndSelect('service.mechanics', 'mechanics')
+      .getMany();
   }
 
   async addMechanicToService(
