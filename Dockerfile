@@ -15,6 +15,9 @@ RUN pnpm install --frozen-lockfile
 
 # Copy source code
 COPY . .
+# Copy applogs folder to dist
+COPY applogs ./dist/applogs
+
 
 # Build the application
 RUN pnpm run build
